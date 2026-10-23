@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "weight_policy": {
+    "version": 1,
+    "basis": "business_priority",
+    "core_min_share": 0.5
+  },
+  "gate_tests": [
+    "test_outputs.py::test_primary_campaign_is_certified"
+  ],
+  "tests": {
+    "test_outputs.py::test_campaign_a_recovers_unknown_sensor_positions": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "主工况无标号测点的位置恢复，是现场回填卡位的直接业务交付"
+    },
+    "test_outputs.py::test_campaign_a_recovers_piecewise_conductivity": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "三段材料导热反演决定后续热工复核能否采用这批试验结果"
+    },
+    "test_outputs.py::test_campaign_a_recovers_both_boundary_coefficients": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "两端换热条件错误会把边界热流全部归因到材料参数"
+    },
+    "test_outputs.py::test_campaign_a_removes_the_two_bad_channels": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "偏置与冻结通道不剔除会污染全部材料参数和测点映射"
+    },
+    "test_outputs.py::test_campaign_b_recovers_a_second_material_profile": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "第二套杆长与材料组合验证恢复方法不是只记住一套标定结果"
+    },
+    "test_outputs.py::test_campaign_c_removes_three_bad_channels": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "三坏点组合验证共识筛选能处理冻结、偏置与多通道同时异常"
+    },
+    "test_outputs.py::test_mapping_direction_and_distance_are_separate": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "方向相关与位置距离必须分别成立，避免用一个较松指标代替另一个口径"
+    },
+    "test_outputs.py::test_adjacent_swap_margin_certifies_unique_mapping": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "相邻测点换位必须产生可测残差间隔，否则现场无法唯一落位"
+    },
+    "test_outputs.py::test_timestep_diagnostics_respect_fourier_limit": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "公开步长与 Fourier 诊断保证数值结果不是由不稳定离散产生"
+    },
+    "test_outputs.py::test_coarse_and_fine_spatial_grids_agree": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "粗网格与细网格一致，证明反演结论不依赖单一空间离散"
+    },
+    "test_outputs.py::test_campaign_meets_public_time_limit": {
+      "weight": 0.055,
+      "priority": "core",
+      "rationale": "十二秒公开上限约束求解路径，防止退化为不可交付的候选枚举"
+    },
+    "test_outputs.py::test_report_top_level_keys_are_exact": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "报告顶层顺序与键集是下游自动换装读取的固定接口"
+    },
+    "test_outputs.py::test_report_nested_keys_are_exact": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "逐层精确键集防止下游把调试字段或错误内部对象写入生产记录"
+    },
+    "test_outputs.py::test_report_has_compact_bytes_and_single_newline": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "紧凑字节与单尾换行是报告逐字节复核和摘要签发的输入"
+    },
+    "test_outputs.py::test_report_numbers_use_six_decimal_rounding": {
+      "weight": 0.017,
+      "priority": "boundary",
+      "rationale": "六位半远离零舍入锁定参数签发文本与下游比较口径"
+    },
+    "test_outputs.py::test_parameter_digest_matches_canonical_payload": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "参数摘要必须由规定的规范对象复算，不能绑定整份报告或缩进文本"
+    },
+    "test_outputs.py::test_success_writes_nothing_to_stdout_or_stderr": {
+      "weight": 0.017,
+      "priority": "supporting",
+      "rationale": "成功通道静默，调度日志才能把任何非空输出识别为异常"
+    },
+    "test_outputs.py::test_missing_top_level_key_is_refused": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "缺顶层键时拒收，避免默认值悄悄改变物理模型"
+    },
+    "test_outputs.py::test_extra_top_level_key_is_refused": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "额外顶层键拒收，保持工况文件与发布报告的精确接口"
+    },
+    "test_outputs.py::test_duplicate_top_level_key_is_refused": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "顶层重复键拒收，防止解析器静默使用最后一个值"
+    },
+    "test_outputs.py::test_duplicate_nested_key_is_refused": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "嵌套重复键拒收，覆盖材料与观测对象内部的同名冲突"
+    },
+    "test_outputs.py::test_wrong_numeric_type_is_refused": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "布尔伪装整数会造成隐性类型错误，必须在数值校验前拒收"
+    },
+    "test_outputs.py::test_relative_output_path_is_refused": {
+      "weight": 0.017,
+      "priority": "boundary",
+      "rationale": "相对输出路径会使报告落点随调度工作目录漂移"
+    },
+    "test_outputs.py::test_parent_traversal_path_is_refused": {
+      "weight": 0.017,
+      "priority": "boundary",
+      "rationale": "父目录回退会越过工况声明的发布位置并破坏原子边界"
+    },
+    "test_outputs.py::test_non_increasing_times_are_refused": {
+      "weight": 0.017,
+      "priority": "boundary",
+      "rationale": "重复或倒序采样会让瞬态正演出现零长度或负长度子步"
+    },
+    "test_outputs.py::test_too_few_channels_are_refused": {
+      "weight": 0.017,
+      "priority": "boundary",
+      "rationale": "通道数下限保证坏点预算后仍有足够观测支持唯一反演"
+    },
+    "test_outputs.py::test_fourier_control_boundary_is_accepted": {
+      "weight": 0.017,
+      "priority": "boundary",
+      "rationale": "公开 Fourier 下界本身必须可运行，避免把合法边界误判为越界"
+    },
+    "test_outputs.py::test_fourier_control_just_below_boundary_is_refused": {
+      "weight": 0.017,
+      "priority": "boundary",
+      "rationale": "最小越界必须拒收，证明边界判定不是宽松舍入"
+    },
+    "test_outputs.py::test_invalid_job_has_no_report_or_ledger_side_effect": {
+      "weight": 0.017,
+      "priority": "recovery",
+      "rationale": "校验失败不创建报告和账本，避免失败工况进入跨批记录"
+    },
+    "test_outputs.py::test_ledger_destination_failure_rolls_back_report": {
+      "weight": 0.021,
+      "priority": "recovery",
+      "rationale": "账本第二次替换失败时恢复报告旧字节，保证双目标发布不留下半成品"
+    },
+    "test_outputs.py::test_error_uses_stderr_prefix_and_empty_stdout": {
+      "weight": 0.017,
+      "priority": "supporting",
+      "rationale": "固定错误通道和前缀让调度能区分模型拒收与崩溃 traceback"
+    },
+    "test_outputs.py::test_repeat_run_keeps_report_and_ledger_bytes": {
+      "weight": 0.017,
+      "priority": "recovery",
+      "rationale": "重复运行保持报告与账本字节，支持调度重试而不制造重复事件"
+    },
+    "test_outputs.py::test_new_event_appends_one_ledger_line": {
+      "weight": 0.017,
+      "priority": "recovery",
+      "rationale": "不同工况只追加一个连续事件，保留跨运行审计顺序"
+    },
+    "test_outputs.py::test_ledger_event_digest_matches_public_formula": {
+      "weight": 0.017,
+      "priority": "schema",
+      "rationale": "事件摘要按公开公式复算，防止账本使用不可追溯的私有编号"
+    }
+  }
+}

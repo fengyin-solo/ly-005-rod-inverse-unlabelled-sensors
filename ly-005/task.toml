@@ -1,0 +1,27 @@
+schema_version = "1.3"
+
+[task]
+name = "local/rod-inverse-unlabelled-sensors"
+description = "Recover unlabeled thermal sensor positions, piecewise conductivity, boundary exchange, and a durable solve ledger."
+authors = [{ name = "yuenlai" }]
+keywords = ["numerical-inversion", "heat-transfer", "pytest", "atomic-publish"]
+
+[agent]
+timeout_sec = 3600
+
+[environment]
+build_timeout_sec = 600
+cpus = 2
+memory_mb = 3072
+storage_mb = 10240
+gpus = 0
+allow_internet = true
+
+[verifier]
+timeout_sec = 240
+
+[metadata]
+difficulty = "hard"
+category = "scientific-computing"
+tags = ["finite-difference", "nonlinear-inversion", "jsonl-ledger", "atomic-publish"]
+expert_time_estimate = "1h"

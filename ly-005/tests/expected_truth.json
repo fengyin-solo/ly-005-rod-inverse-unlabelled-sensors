@@ -1,0 +1,81 @@
+{
+  "JOB-LN42-7C81": {
+    "job_id": "JOB-LN42-7C81",
+    "sensor_map": {
+      "TC-C7": 0.241,
+      "TC-M2": 0.108,
+      "TC-A9": 0.414,
+      "TC-Q4": 0.043,
+      "TC-F8": 0.357,
+      "TC-R1": 0.177,
+      "TC-K6": 0.462,
+      "TC-P3": 0.299
+    },
+    "conductivity_w_mk": [
+      25.0,
+      18.0,
+      12.0
+    ],
+    "left_h_w_m2k": 250.0,
+    "right_h_w_m2k": 0.03,
+    "bad_channels": [
+      "TC-A9",
+      "TC-R1"
+    ],
+    "map_tolerance_m": 0.014,
+    "parameter_rel_tolerance": 0.18
+  },
+  "JOB-KP19-5E26": {
+    "job_id": "JOB-KP19-5E26",
+    "sensor_map": {
+      "TC-N5": 0.436,
+      "TC-D8": 0.188,
+      "TC-Y2": 0.061,
+      "TC-B6": 0.491,
+      "TC-H4": 0.311,
+      "TC-Z9": 0.132,
+      "TC-L3": 0.379,
+      "TC-E7": 0.246
+    },
+    "conductivity_w_mk": [
+      45.0,
+      32.0,
+      20.0
+    ],
+    "left_h_w_m2k": 240.0,
+    "right_h_w_m2k": 0.02,
+    "bad_channels": [
+      "TC-D8",
+      "TC-Z9"
+    ],
+    "map_tolerance_m": 0.014,
+    "parameter_rel_tolerance": 0.18
+  },
+  "JOB-VT73-2A48": {
+    "job_id": "JOB-VT73-2A48",
+    "sensor_map": {
+      "TC-U2": 0.441,
+      "TC-W6": 0.334,
+      "TC-S1": 0.154,
+      "TC-J9": 0.039,
+      "TC-O5": 0.219,
+      "TC-X3": 0.097,
+      "TC-G8": 0.397,
+      "TC-V4": 0.278
+    },
+    "conductivity_w_mk": [
+      55.0,
+      38.0,
+      25.0
+    ],
+    "left_h_w_m2k": 280.0,
+    "right_h_w_m2k": 0.05,
+    "bad_channels": [
+      "TC-G8",
+      "TC-J9",
+      "TC-U2"
+    ],
+    "map_tolerance_m": 0.014,
+    "parameter_rel_tolerance": 0.18
+  }
+}
