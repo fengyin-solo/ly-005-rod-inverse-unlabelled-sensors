@@ -328,12 +328,14 @@ def test_campaign_a_recovers_unknown_sensor_positions(campaign_suite):
 
 def test_campaign_a_recovers_piecewise_conductivity(campaign_suite):
     """题面：「三段 `k`、`h_L` 和 `h_R` 要从温度历程反演」。"""
+    print("HARDCODE-BASE INPUT_SCENARIO_CAMPAIGN_A")
     report = campaign_suite["a"]["report"]
     truth = EXPECTED_TRUTH[report["job_id"]]
     actual = [item["k_w_mk"] for item in report["conductivity_w_mk"]]
     relative = maximum_relative_error(actual, truth["conductivity_w_mk"])
     assert relative <= 0.18
     assert len(report["conductivity_w_mk"]) == 3
+    assert len(report["certificate"]["parameter_sha256"]) == 64
 
 
 def test_campaign_a_recovers_both_boundary_coefficients(campaign_suite):
@@ -361,6 +363,7 @@ def test_campaign_a_removes_the_two_bad_channels(campaign_suite):
 
 def test_campaign_b_recovers_a_second_material_profile(campaign_suite):
     """题面：「同一工况在改变空间节点数后仍要落在上面的参数与位置口径内」。"""
+    print("HARDCODE-VARIANT INPUT_SCENARIO_CAMPAIGN_B")
     report = campaign_suite["b"]["report"]
     truth = EXPECTED_TRUTH[report["job_id"]]
     map_error = maximum_map_error(report, truth)
@@ -370,6 +373,10 @@ def test_campaign_b_recovers_a_second_material_profile(campaign_suite):
     )
     assert map_error <= MAP_TOLERANCE
     assert conductivity_error <= 0.18
+    assert (
+        report["certificate"]["parameter_sha256"]
+        != campaign_suite["a"]["report"]["certificate"]["parameter_sha256"]
+    )
     assert report["consensus"]["outlier_channels"] == truth["bad_channels"]
 
 

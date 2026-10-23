@@ -51,6 +51,8 @@ k(0)\frac{\partial T}{\partial x}\bigg|_{x=0}
 | 稳定性 | `timestep.max_fourier` 不超过 `controls.max_fourier`，且 `timestep.dt_s` 大于零 |
 | 邻位唯一性 | `certificate.unique_margin` 不小于 `0.03` 摄氏度 |
 
+`consensus.rms_c` 先对每个保留通道计算全时段温度残差平方的算术平均再开平方，得到该通道均方根误差；再对这些通道均方根误差的平方取算术平均并开平方，坏通道不参与。
+
 同一工况在改变空间节点数后仍要落在上面的参数与位置口径内。`controls.max_seconds` 是单次工况从开始校验到发布完成的公开上限，正常工况必须在时限内完成，并给出真实的实际步长与最大网格 Fourier 数。
 
 ## 工况文件
