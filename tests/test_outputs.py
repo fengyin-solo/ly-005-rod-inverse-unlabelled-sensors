@@ -71,6 +71,7 @@ def prepare_job(
     output_dir = root / "out"
     state_dir.mkdir()
     output_dir.mkdir()
+    output_dir.chmod(0o777)
     job = source_job(campaign)
     job["output"] = str(output_dir / output_name)
     if mutate is not None:
@@ -651,6 +652,19 @@ def test_non_increasing_times_are_refused(case_dir):
     assert data["process"].returncode == 2
     assert data["process"].stderr.startswith("ERROR TIMES:")
     assert not data["report_path"].exists()
+
+    def duplicate_position(job):
+        references = job["observations"]["reference_channels"]
+        references[1]["position_m"] = references[0]["position_m"]
+
+    duplicate_data = failure_case(
+        case_dir / "duplicate-position",
+        mutate=duplicate_position,
+    )
+    assert duplicate_data["process"].returncode == 2
+    assert duplicate_data["process"].stderr.startswith("ERROR REFERENCE_POSITION:")
+    assert not duplicate_data["report_path"].exists()
+    assert not duplicate_data["ledger_path"].exists()
 
 
 def test_too_few_channels_are_refused(case_dir):

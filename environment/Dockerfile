@@ -10,6 +10,5 @@ RUN mkdir -p /state /logs/verifier \
     && chmod -R u+rwX,go+rX /app /state
 
 WORKDIR /app
-USER nobody
 
 CMD ["sleep", "infinity"]

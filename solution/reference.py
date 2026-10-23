@@ -204,7 +204,12 @@ def validate_job(
 
     rod = job["rod"]
     require_exact_keys(rod, ROD_KEYS, "SCHEMA", "rod")
-    if not is_number(rod["length_m"]) or not 0.1 <= float(rod["length_m"]) <= 3.0:
+    length_value = rod["length_m"]
+    if (
+        not is_number(length_value)
+        or float(length_value) < 0.1
+        or float(length_value) > 3.0
+    ):
         raise TaskError("LENGTH", "length_m must be a JSON number in [0.1, 3.0]")
     length = float(rod["length_m"])
     if not is_number(rod["initial_temperature_c"]):
@@ -221,7 +226,7 @@ def validate_job(
         if not all(is_number(item) for item in bounds):
             raise TaskError("TYPE", f"{name} bounds must be numeric")
         low, high = float(bounds[0]), float(bounds[1])
-        if low < 0.0 or high <= low:
+        if low < 0.0 or not high > low:
             raise TaskError("BOUNDARY_BOUNDS", f"{name} bounds are not increasing")
 
     segments = rod["segments"]
@@ -231,16 +236,19 @@ def validate_job(
         require_exact_keys(segment, SEGMENT_KEYS, "SCHEMA", f"segment {index}")
         if not all(is_number(segment[key]) for key in ("x0_m", "x1_m", "capacity_j_m3k")):
             raise TaskError("TYPE", f"segment {index} has a non-numeric field")
-        if float(segment["x1_m"]) <= float(segment["x0_m"]):
+        if not float(segment["x1_m"]) > float(segment["x0_m"]):
             raise TaskError("SEGMENT_EDGE", f"segment {index} has non-increasing edges")
-        if float(segment["capacity_j_m3k"]) <= 0.0:
+        if not float(segment["capacity_j_m3k"]) > 0.0:
             raise TaskError("CAPACITY", f"segment {index} capacity must be positive")
         bounds = segment["conductivity_bounds_w_mk"]
         if not isinstance(bounds, list) or len(bounds) != 2:
             raise TaskError("TYPE", f"segment {index} conductivity bounds must be an array")
         if not all(is_number(item) for item in bounds):
             raise TaskError("TYPE", f"segment {index} conductivity bounds must be numeric")
-        if float(bounds[0]) <= 0.0 or float(bounds[1]) <= float(bounds[0]):
+        if (
+            not float(bounds[0]) > 0.0
+            or not float(bounds[1]) > float(bounds[0])
+        ):
             raise TaskError("CONDUCTIVITY_BOUNDS", f"segment {index} bounds are invalid")
     if abs(float(segments[0]["x0_m"])) > 1e-12:
         raise TaskError("SEGMENT_EDGE", "first segment must start at zero")
@@ -253,13 +261,20 @@ def validate_job(
     observations = job["observations"]
     require_exact_keys(observations, OBSERVATION_KEYS, "SCHEMA", "observations")
     times = observations["times_s"]
-    if not isinstance(times, list) or not 8 <= len(times) <= 64:
+    if (
+        not isinstance(times, list)
+        or len(times) < 8
+        or len(times) > 64
+    ):
         raise TaskError("TIMES", "times_s must contain 8 to 64 values")
     if not all(is_number(item) for item in times):
         raise TaskError("TYPE", "times_s must contain JSON numbers")
     if abs(float(times[0])) > 1e-12:
         raise TaskError("TIMES", "first observation time must be zero")
-    if any(float(times[index]) <= float(times[index - 1]) for index in range(1, len(times))):
+    if any(
+        not float(times[index]) > float(times[index - 1])
+        for index in range(1, len(times))
+    ):
         raise TaskError("TIMES", "times_s must be strictly increasing")
     if float(times[-1]) > 7200.0:
         raise TaskError("TIMES", "final observation time exceeds 7200 seconds")
@@ -268,7 +283,7 @@ def validate_job(
         raise TaskError("SURFACE_LENGTH", "surface trace must match times_s length")
     if not all(is_number(item) for item in surface):
         raise TaskError("TYPE", "surface temperatures must be numeric")
-    if any(not -80.0 <= float(item) <= 500.0 for item in surface):
+    if any(float(item) < -80.0 or float(item) > 500.0 for item in surface):
         raise TaskError("TRACE_RANGE", "surface temperature is outside [-80, 500]")
     references = observations["reference_channels"]
     if not isinstance(references, list) or len(references) != 3:
@@ -296,14 +311,18 @@ def validate_job(
             raise TaskError("TRACE_LENGTH", "reference trace must match times_s length")
         if not all(is_number(item) for item in values):
             raise TaskError("TYPE", "reference temperatures must be numeric")
-    if any(
-        reference_positions[index] >= reference_positions[index + 1]
+    if not all(
+        reference_positions[index] < reference_positions[index + 1]
         for index in range(len(reference_positions) - 1)
     ):
         raise TaskError("REFERENCE_POSITION", "reference positions must be increasing")
 
     channels = observations["channels"]
-    if not isinstance(channels, list) or not 5 <= len(channels) <= 12:
+    if (
+        not isinstance(channels, list)
+        or len(channels) < 5
+        or len(channels) > 12
+    ):
         raise TaskError("CHANNELS", "observations.channels must contain 5 to 12 items")
     seen: set[str] = set()
     for index, channel in enumerate(channels):
@@ -317,20 +336,20 @@ def validate_job(
             raise TaskError("TRACE_LENGTH", f"{channel_id} must match times_s length")
         if not all(is_number(item) for item in values):
             raise TaskError("TYPE", f"{channel_id} temperatures must be numeric")
-        if any(not -80.0 <= float(item) <= 500.0 for item in values):
+        if any(float(item) < -80.0 or float(item) > 500.0 for item in values):
             raise TaskError("TRACE_RANGE", f"{channel_id} temperature is outside [-80, 500]")
 
     max_outliers = observations["max_outliers"]
     if not isinstance(max_outliers, int) or isinstance(max_outliers, bool):
         raise TaskError("TYPE", "max_outliers must be a JSON integer")
-    if not 0 <= max_outliers <= 3 or len(channels) - max_outliers < 4:
+    if max_outliers < 0 or max_outliers > 3 or len(channels) - max_outliers < 4:
         raise TaskError("OUTLIER_BUDGET", "max_outliers must be an integer from 0 to 3")
 
     controls = job["controls"]
     require_exact_keys(controls, CONTROL_KEYS, "SCHEMA", "controls")
     if not isinstance(controls["fd_nodes"], int) or isinstance(controls["fd_nodes"], bool):
         raise TaskError("TYPE", "fd_nodes must be a JSON integer")
-    if not 48 <= controls["fd_nodes"] <= 128:
+    if controls["fd_nodes"] < 48 or controls["fd_nodes"] > 128:
         raise TaskError("FD_NODES", "fd_nodes must be an integer in [48, 128]")
     numeric_rules = {
         "max_seconds": (1.0, 30.0),
@@ -341,7 +360,11 @@ def validate_job(
     }
     for key, (low, high) in numeric_rules.items():
         value = controls[key]
-        if not is_number(value) or not low <= float(value) <= high:
+        if (
+            not is_number(value)
+            or float(value) < low
+            or float(value) > high
+        ):
             raise TaskError("CONTROL_RANGE", f"{key} is outside its public range")
 
 
@@ -441,7 +464,7 @@ def simulate(
 
     for current_time in times:
         interval = current_time - previous_time
-        if interval <= 0.0:
+        if not interval > 0.0:
             output.append([sample(position) for position in positions])
             previous_time = current_time
             continue
@@ -642,7 +665,7 @@ def fit_model(
     )
     best_cost = sum(value * value for value in residual)
     for _ in range(15):
-        if time.monotonic() >= deadline:
+        if not time.monotonic() < deadline:
             break
         base = weighted_residual(
             job,
@@ -1023,7 +1046,7 @@ def position_distance_diagnostic(
         ep = sum((right_prediction[row][column] - observed[row]) ** 2 for row in range(len(observed)))
         curvature = em + ep - 2.0 * e0
         linear = (ep - em) / (2.0 * delta)
-        shift = 0.0 if curvature <= 1e-14 else -linear / curvature
+        shift = 0.0 if not curvature > 1e-14 else -linear / curvature
         shifts.append(min(2.0 * delta, max(-2.0 * delta, shift)))
     return rounded(math.sqrt(sum(value * value for value in shifts) / len(shifts)))
 
